@@ -42,6 +42,12 @@ public class PlayerController : MonoBehaviour
         RaycastHit2D hit = Physics2D.BoxCast(gameObject.transform.position, Scale, 0f, Vector2.down, 1.5f, Mask);
         isGrounded = (hit.collider != null);
 
+        //Vector2 boxCenter = transform.position;
+        //boxCenter.y -= SpriteRenderer.bounds.size.y / 2;
+
+        //isGrounded = Physics2D.OverlapBox(boxCenter, Scale, 0f, Mask);
+        //DebugCollision(boxCenter, Scale, isGrounded);
+
         DebugCollision(gameObject.transform.position, gameObject.transform.localScale, isGrounded);
 
         if (direction != 0)
