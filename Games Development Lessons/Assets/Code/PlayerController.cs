@@ -30,11 +30,12 @@ public class PlayerController : MonoBehaviour
 
     private float direction;
     private bool jump;
-
+    private bool attack;
 
     // Update is called once per frame
     void Update()
     {
+        attack = Input.GetButton("Fire1");
         direction = Input.GetAxisRaw("Horizontal");
         jump = Input.GetButtonDown("Jump");
     }
@@ -51,15 +52,20 @@ public class PlayerController : MonoBehaviour
             Run();
             Jump();
             adjustGravityModifier();
+            Attack();
 
-            if (gameObject.transform.position.y < -5)
+            if (gameObject.transform.position.y < -10)
             {
-                RespawnPlayer();
-                Playerhascontrol = false;
+                Animator.SetBool("IsDieing", true);
             }
 
             Animator.SetBool("IsJumping", !isGrounded);
         }
+    }
+
+    private void Attack()
+    {
+        Animator.SetBool("IsAttacking", attack);
     }
 
     private void adjustGravityModifier()
@@ -121,9 +127,7 @@ public class PlayerController : MonoBehaviour
 
     // called when the cube hits the floor
     private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("OnCollisionEnter2D");
-        
+    {        
         if(collision.gameObject.layer == 9)
         {
             Animator.SetBool("IsDieing", true);
