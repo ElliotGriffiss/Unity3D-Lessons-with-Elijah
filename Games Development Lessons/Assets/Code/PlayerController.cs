@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D Player;
     [SerializeField] private Animator Animator;
+    [SerializeField] private SpriteRenderer SpriteRenderer;
 
     [SerializeField] private float Speed;
     [SerializeField] private Vector2 JumpForce;
@@ -21,6 +22,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Vector2 Scale;
 
+    private bool Playerhascontrol = true;
+
+    public float UpwardsGravityModifier = 1;
+    public float DownwardsGravityModifier = 1;
     // Controller Inputs
 
     private float direction;
@@ -38,18 +43,39 @@ public class PlayerController : MonoBehaviour
     /// Frame-rate independent MonoBehaviour.FixedUpdate message for physics calculations.
     /// </summary>
     private void FixedUpdate()
+    { 
+        if (Playerhascontrol == true)
+        {
+            isGrounded = IsGrounded();
+
+            Run();
+            Jump();
+            adjustGravityModifier();
+
+            if (gameObject.transform.position.y < -5)
+            {
+                RespawnPlayer();
+                Playerhascontrol = false;
+            }
+
+            Animator.SetBool("IsJumping", !isGrounded);
+        }
+    }
+
+    private void adjustGravityModifier()
     {
-        RaycastHit2D hit = Physics2D.BoxCast(gameObject.transform.position, Scale, 0f, Vector2.down, 1.5f, Mask);
-        isGrounded = (hit.collider != null);
+        if (Player.velocity.y > 0)
+        {
+            Player.gravityScale = UpwardsGravityModifier;
+        }
+        else if (Player.velocity.y<0)
+        {
+            Player.gravityScale = DownwardsGravityModifier;
+        }
+    }
 
-        //Vector2 boxCenter = transform.position;
-        //boxCenter.y -= SpriteRenderer.bounds.size.y / 2;
-
-        //isGrounded = Physics2D.OverlapBox(boxCenter, Scale, 0f, Mask);
-        //DebugCollision(boxCenter, Scale, isGrounded);
-
-        DebugCollision(gameObject.transform.position, gameObject.transform.localScale, isGrounded);
-
+    private void Run()
+    {
         if (direction != 0)
         {
             Player.transform.position += Vector3.right * direction * Time.deltaTime * Speed;
@@ -68,6 +94,10 @@ public class PlayerController : MonoBehaviour
         {
             Animator.SetBool("IsWalking", false);
         }
+    }
+
+    private void Jump()
+    {
 
         if (jump && isGrounded)
         {
@@ -75,14 +105,19 @@ public class PlayerController : MonoBehaviour
             Animator.SetBool("IsJumping", true);
         }
 
-        if (gameObject.transform.position.y < -5)
-        {
-            RespawnPlayer();
-        }
-
-        Debug.Log(direction);
-        Animator.SetBool("IsJumping", !isGrounded);
     }
+
+    private bool IsGrounded()
+    {
+        Vector2 boxCenter = transform.position;
+        boxCenter.y -= SpriteRenderer.bounds.size.y / 2;
+
+        bool grounded = Physics2D.OverlapBox(boxCenter, Scale, 0f, Mask);
+        DebugCollision(boxCenter, Scale, grounded);
+
+        return grounded;
+    }
+
 
     // called when the cube hits the floor
     private void OnTriggerEnter2D(Collider2D collision)
@@ -92,12 +127,13 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.layer == 9)
         {
             Animator.SetBool("IsDieing", true);
-           
+            Playerhascontrol = false;
         }
     }
 
     public void RespawnPlayer()
-    { 
+    {
+        Playerhascontrol = true;
         gameObject.transform.position = spawmpoint.transform.position;
         Animator.SetBool("IsDieing", false);
     }

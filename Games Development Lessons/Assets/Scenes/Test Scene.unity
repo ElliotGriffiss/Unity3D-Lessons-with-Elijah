@@ -230,6 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player: {fileID: 289448608}
   Animator: {fileID: 289448612}
+  SpriteRenderer: {fileID: 289448607}
   Speed: 5
   JumpForce: {x: 0, y: 10}
   spawmpoint: {fileID: 616723567}
@@ -237,6 +238,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   Scale: {x: 2.5, y: 2.5}
+  UpwardsGravityModifier: 1
+  DownwardsGravityModifier: 3
 --- !u!4 &289448610
 Transform:
   m_ObjectHideFlags: 0
